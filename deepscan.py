@@ -50,6 +50,7 @@ from indexer import CodeIndex
 from llm_client import LLMClient
 from redactor import run_semgrep_for_secrets
 from rule_matcher import RuleMatcher
+from tool_utils import find_tool, tool_env
 from triager import Triager
 
 logger = logging.getLogger("deepscan")
@@ -315,7 +316,7 @@ class Orchestrator:
         # Check for existing Semgrep results first
         if os.path.exists(semgrep_output):
             logger.info("Loading existing Semgrep results from %s", semgrep_output)
-            with open(semgrep_output) as f:
+            with open(semgrep_output, encoding='utf-8') as f:
                 data = json.load(f)
             results = data.get("results", [])
             logger.info("Semgrep: %d findings loaded", len(results))
@@ -323,12 +324,13 @@ class Orchestrator:
 
         # Run Semgrep
         logger.info("Running Semgrep scan on %s...", self.target)
-        cmd = ["semgrep", "--config", "p/default", "--config", "p/secrets",
+        cmd = [find_tool("semgrep"), "--config", "p/default", "--config", "p/secrets",
                "--json", f"--output={semgrep_output}", "--metrics=off",
                self.target]
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=3600)
+            result = subprocess.run(cmd, capture_output=True, text=True,
+                                      encoding='utf-8', env=tool_env(), timeout=3600)
             if result.returncode > 1:
                 logger.error("Semgrep failed: %s", result.stderr[:500])
                 return []
@@ -336,7 +338,7 @@ class Orchestrator:
             logger.error("Semgrep error: %s", e)
             return []
 
-        with open(semgrep_output) as f:
+        with open(semgrep_output, encoding='utf-8') as f:
             data = json.load(f)
         results = data.get("results", [])
         logger.info("Semgrep: %d findings from scan", len(results))

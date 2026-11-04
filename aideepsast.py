@@ -26,6 +26,8 @@ import platform
 import subprocess
 from datetime import datetime, timezone
 
+from tool_utils import find_tool, tool_env
+
 
 def utc_now_iso():
     """Return current UTC time as ISO 8601 string with Z suffix."""
@@ -56,7 +58,7 @@ def setup_logging(log_level="INFO", log_file=None):
 def load_config(config_path):
     """Load configuration from a YAML file."""
     try:
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
         return config
     except FileNotFoundError:
@@ -333,7 +335,7 @@ def validate_environment(target, skip_llm, config, logger):
     # Check Semgrep is installed
     try:
         result = subprocess.run(
-            ["semgrep", "--version"],
+            [find_tool("semgrep"), "--version"],
             capture_output=True, text=True, timeout=15
         )
         logger.info(f"Semgrep version: {result.stdout.strip()}")
@@ -349,7 +351,7 @@ def validate_environment(target, skip_llm, config, logger):
     if not skip_llm:
         try:
             result = subprocess.run(
-                ["llama-completion", "--version"],
+                [find_tool("llama-completion"), "--version"],
                 capture_output=True, text=True, timeout=15
             )
             logger.info(f"llama-completion version: {result.stdout.strip()}")
@@ -391,7 +393,7 @@ def run_semgrep_scan(target, config, output_dir, timeout, logger):
         config_args.extend(["--config", c.strip()])
 
     try:
-        cmd = ["semgrep"] + config_args + [
+        cmd = [find_tool("semgrep")] + config_args + [
             "--json",
             f"--output={semgrep_output}",
             target
@@ -400,6 +402,8 @@ def run_semgrep_scan(target, config, output_dir, timeout, logger):
             cmd,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            env=tool_env(),
             timeout=timeout
         )
 
@@ -422,7 +426,7 @@ def run_semgrep_scan(target, config, output_dir, timeout, logger):
 
     # Load results
     try:
-        with open(semgrep_output) as f:
+        with open(semgrep_output, encoding='utf-8') as f:
             data = json.load(f)
 
         findings_count = len(data.get('results', []))
@@ -508,7 +512,7 @@ def ask_llm(code_snippet, semgrep_finding, rule_id, config, logger):
         logger.debug(f"Prompt written to temporary file: {tmp_path}")
 
         # Read prompt back for -p flag
-        with open(tmp_path, 'r') as f:
+        with open(tmp_path, 'r', encoding='utf-8') as f:
             prompt_content = f.read()
 
         # Build llama-completion command (non-interactive, clean stdout)
@@ -619,7 +623,7 @@ def extract_code_snippet(file_path, start_line, end_line, context_lines=3, logge
     Adds context lines above and below for better analysis.
     """
     try:
-        with open(file_path) as f:
+        with open(file_path, encoding='utf-8') as f:
             lines = f.readlines()
 
         total_lines = len(lines)
@@ -948,7 +952,7 @@ def generate_markdown_report(report, output_dir, config, logger):
     md_path = os.path.join(output_dir, 'owasp_ai_report.md')
     summary = generate_summary(report)
 
-    with open(md_path, 'w') as f:
+    with open(md_path, 'w', encoding='utf-8') as f:
         f.write("# AI Deep SAST — Security Report\n\n")
         f.write(f"**Generated:** {utc_now_iso()} UTC\n\n")
         f.write(f"**Target:** `{config.get('target', 'N/A')}`\n\n")
@@ -1017,7 +1021,7 @@ def generate_json_report(report, output_dir, config, logger):
         "findings": report
     }
 
-    with open(json_path, 'w') as f:
+    with open(json_path, 'w', encoding='utf-8') as f:
         json.dump(json_output, f, indent=2, default=str)
 
     logger.info(f"JSON report written to '{json_path}'.")
@@ -1067,7 +1071,7 @@ def generate_junit_report(report, output_dir, logger):
 {chr(10).join(test_cases)}
 </testsuite>"""
 
-    with open(junit_path, 'w') as f:
+    with open(junit_path, 'w', encoding='utf-8') as f:
         f.write(xml_content)
 
     logger.info(f"JUnit report written to '{junit_path}'.")
