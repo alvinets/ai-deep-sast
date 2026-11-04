@@ -155,7 +155,7 @@ class CodeGuardLoader:
 
             file_path = os.path.join(self._rules_dir, filename)
             try:
-                with open(file_path, "r") as f:
+                with open(file_path, "r", encoding="utf-8") as f:
                     content = f.read()
             except OSError as e:
                 logger.warning("Cannot read %s: %s", file_path, e)

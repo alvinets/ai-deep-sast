@@ -95,7 +95,7 @@ class ASVSLoader:
             return 0
 
         try:
-            with open(self._path, "r") as f:
+            with open(self._path, "r", encoding="utf-8") as f:
                 data = json.load(f)
         except (json.JSONDecodeError, OSError) as e:
             logger.error("Failed to load ASVS: %s", e)
