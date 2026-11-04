@@ -46,6 +46,7 @@ def run_semgrep(target_file):
         ],
         capture_output=True,
         text=True,
+        encoding="utf-8",
         cwd=REPO_ROOT,
     )
     data = json.loads(result.stdout)
@@ -277,6 +278,7 @@ def run_semgrep_zipslip(target_file):
         ],
         capture_output=True,
         text=True,
+        encoding="utf-8",
         cwd=REPO_ROOT,
     )
     data = json.loads(result.stdout)
