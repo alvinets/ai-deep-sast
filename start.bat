@@ -8,6 +8,7 @@ set "CONFIG_FILE=config\scanner_config.yaml"
 set "DEMO_TARGET=samples\sample_vuln.py"
 set "PY=python"
 if exist ".venv\Scripts\python.exe" set "PY=.venv\Scripts\python.exe"
+if exist ".venv\Scripts\python.exe" set "PATH=%CD%\.venv\Scripts;%PATH%"
 set "EMPTY=0"
 set "DEPS_OK=0"
 
@@ -75,6 +76,7 @@ if not exist ".venv\Scripts\python.exe" (
 )
 :SETUP_HAVE_VENV
 set "PY=.venv\Scripts\python.exe"
+set "PATH=%CD%\.venv\Scripts;%PATH%"
 echo [i] Using interpreter: !PY!
 call :RUN "%PY%" -m pip install --upgrade pip
 if errorlevel 1 (
