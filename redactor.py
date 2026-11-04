@@ -39,6 +39,8 @@ import subprocess
 import tempfile
 from typing import Any, Dict, List, Optional, Set, Tuple
 
+from tool_utils import find_tool, tool_env
+
 logger = logging.getLogger(__name__)
 
 # Placeholder used to replace secret values
@@ -262,9 +264,11 @@ def run_semgrep_for_secrets(target: str,
 
     Used to identify secret locations for the redaction layer.
     """
-    cmd = [
-        "semgrep", "scan",
-        "--config", semgrep_config,
+    configs = [c.strip() for c in semgrep_config.split(",") if c.strip()]
+    cmd = [find_tool("semgrep"), "scan"]
+    for cfg in configs:
+        cmd += ["--config", cfg]
+    cmd += [
         "--json",
         "--metrics=off",
         "--quiet",
@@ -273,7 +277,12 @@ def run_semgrep_for_secrets(target: str,
 
     try:
         result = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=timeout
+            cmd,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            env=tool_env(),
+            timeout=timeout,
         )
         if result.returncode not in (0, 1):
             logger.warning("Semgrep secret scan returned code %d", result.returncode)
