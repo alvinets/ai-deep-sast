@@ -19,7 +19,7 @@
 # Uses Foundation-Sec-8B-Instruct Q8_0 GGUF via llama-completion
 # https://huggingface.co/fdtn-ai/Foundation-Sec-8B-Instruct-Q8_0-GGUF
 #
-# This is the INSTRUCT variant — fine-tuned for following structured
+# This is the INSTRUCT variant - fine-tuned for following structured
 # instructions, which produces better formatted security analysis
 # compared to the base model.
 #
