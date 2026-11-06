@@ -9,6 +9,17 @@ set "DEMO_TARGET=samples\sample_vuln.py"
 set "PY=python"
 if exist ".venv\Scripts\python.exe" set "PY=.venv\Scripts\python.exe"
 if exist ".venv\Scripts\python.exe" set "PATH=%CD%\.venv\Scripts;%PATH%"
+rem If llama.cpp was installed by winget, its folder may not be in this shell's
+rem PATH yet (PATH changes only reach new processes). Add it so option 3 and the
+rem model status check work without restarting the terminal.
+if not defined LLAMA_RUNTIME (
+    for /d %%D in ("%LOCALAPPDATA%\Microsoft\WinGet\Packages\ggml.llamacpp_*") do (
+        if exist "%%~fD\llama-completion.exe" (
+            set "LLAMA_RUNTIME=%%~fD"
+            set "PATH=%%~fD;!PATH!"
+        )
+    )
+)
 set "EMPTY=0"
 set "DEPS_OK=0"
 
