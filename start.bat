@@ -205,19 +205,31 @@ if errorlevel 1 goto :MENU
 echo [i] Python:
 "%PY%" --version
 echo.
-echo [i] llama.cpp:
-call :CHECK_LLAMA
+echo [i] llama.cpp runtime:
+where llama-completion >nul 2>&1
+if errorlevel 1 (
+    echo     llama-completion : not found on PATH
+    echo     Needed by option 3 only. Install llama.cpp and add it to PATH.
+) else (
+    echo     llama-completion : found
+    where llama-completion
+)
 echo.
 echo [i] Model cache:
 if exist "%USERPROFILE%\.cache\llama.cpp" (
     dir /b "%USERPROFILE%\.cache\llama.cpp" 2>nul
 ) else (
-    echo     not present yet - the model downloads on first AI scan
+    echo     not present yet - the GGUF model downloads on first AI scan
 )
 echo.
 echo [i] Local model dir:
 if exist "foundation-sec-model" (
     dir /b "foundation-sec-model" 2>nul
+    if exist "foundation-sec-model\*.gguf" (
+        echo     GGUF build present
+    ) else (
+        echo     no .gguf here - llama.cpp needs a GGUF build
+    )
 ) else (
     echo     foundation-sec-model not present
 )
@@ -226,6 +238,10 @@ echo [i] LLM environment:
 if defined LLM_BASE_URL (echo     LLM_BASE_URL = !LLM_BASE_URL!) else (echo     LLM_BASE_URL = not set)
 if defined LLM_MODEL (echo     LLM_MODEL = !LLM_MODEL!) else (echo     LLM_MODEL = not set)
 if defined LLM_API_KEY (echo     LLM_API_KEY = set) else (echo     LLM_API_KEY = not set)
+echo.
+echo [i] Next steps:
+echo     Option 3 needs llama.cpp on PATH plus a GGUF model.
+echo     Option 4 needs LLM_BASE_URL, LLM_API_KEY and LLM_MODEL.
 call :DONE "Model status displayed."
 goto :MENU
 
