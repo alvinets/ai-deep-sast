@@ -20,6 +20,9 @@ if not defined LLAMA_RUNTIME (
         )
     )
 )
+rem Optional local overrides for the remote LLM (gitignored).
+if exist "config\llm_env.bat" call "config\llm_env.bat"
+
 set "EMPTY=0"
 set "DEPS_OK=0"
 
@@ -226,23 +229,18 @@ if errorlevel 1 (
     where llama-completion
 )
 echo.
-echo [i] Model cache:
-if exist "%USERPROFILE%\.cache\llama.cpp" (
-    dir /b "%USERPROFILE%\.cache\llama.cpp" 2>nul
+echo [i] GGUF model:
+set "FS_MODEL="
+if exist "%USERPROFILE%\.cache\llama.cpp\foundation-sec-8b-instruct-q8_0.gguf" set "FS_MODEL=%USERPROFILE%\.cache\llama.cpp\foundation-sec-8b-instruct-q8_0.gguf"
+if not defined FS_MODEL if defined HF_HOME for /d %%S in ("%HF_HOME%\hub\models--fdtn-ai--Foundation-Sec-8B-Instruct-Q8_0-GGUF\snapshots\*") do if not defined FS_MODEL if exist "%%~fS\foundation-sec-8b-instruct-q8_0.gguf" set "FS_MODEL=%%~fS\foundation-sec-8b-instruct-q8_0.gguf"
+if not defined FS_MODEL if defined HF_HUB_CACHE for /d %%S in ("%HF_HUB_CACHE%\models--fdtn-ai--Foundation-Sec-8B-Instruct-Q8_0-GGUF\snapshots\*") do if not defined FS_MODEL if exist "%%~fS\foundation-sec-8b-instruct-q8_0.gguf" set "FS_MODEL=%%~fS\foundation-sec-8b-instruct-q8_0.gguf"
+if not defined FS_MODEL for /d %%S in ("%USERPROFILE%\.cache\huggingface\hub\models--fdtn-ai--Foundation-Sec-8B-Instruct-Q8_0-GGUF\snapshots\*") do if not defined FS_MODEL if exist "%%~fS\foundation-sec-8b-instruct-q8_0.gguf" set "FS_MODEL=%%~fS\foundation-sec-8b-instruct-q8_0.gguf"
+if not defined FS_MODEL if exist "foundation-sec-model\*.gguf" set "FS_MODEL=foundation-sec-model"
+if defined FS_MODEL (
+    echo     found
+    echo     !FS_MODEL!
 ) else (
-    echo     not present yet - the GGUF model downloads on first AI scan
-)
-echo.
-echo [i] Local model dir:
-if exist "foundation-sec-model" (
-    dir /b "foundation-sec-model" 2>nul
-    if exist "foundation-sec-model\*.gguf" (
-        echo     GGUF build present
-    ) else (
-        echo     no .gguf here - llama.cpp needs a GGUF build
-    )
-) else (
-    echo     foundation-sec-model not present
+    echo     not found - the first AI scan downloads it, about 8 GB
 )
 echo.
 echo [i] LLM environment:
@@ -251,8 +249,16 @@ if defined LLM_MODEL (echo     LLM_MODEL = !LLM_MODEL!) else (echo     LLM_MODEL
 if defined LLM_API_KEY (echo     LLM_API_KEY = set) else (echo     LLM_API_KEY = not set)
 echo.
 echo [i] Next steps:
-echo     Option 3 needs llama.cpp on PATH plus a GGUF model.
-echo     Option 4 needs LLM_BASE_URL, LLM_API_KEY and LLM_MODEL.
+if defined FS_MODEL (
+    echo     Option 3 is ready - llama.cpp and the GGUF model are present.
+) else (
+    echo     Option 3 needs llama.cpp on PATH plus a GGUF model.
+)
+if defined LLM_BASE_URL (
+    echo     Option 4 is ready - remote LLM endpoint is configured.
+) else (
+    echo     Option 4 needs LLM_BASE_URL, LLM_API_KEY and LLM_MODEL.
+)
 call :DONE "Model status displayed."
 goto :MENU
 

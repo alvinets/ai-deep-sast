@@ -52,3 +52,6 @@ FOUNDRY_DESIGN.md
 .vscode/
 *.swp
 *.swo
+
+# Local LLM endpoint overrides (may contain API keys)
+config/llm_env.bat
