@@ -255,7 +255,8 @@ class Orchestrator:
         self.reporter = DeepScanReporter(
             self.store, output_dir=self.output_dir,
             repo_url=self.repo_url, commit_sha=self.commit_sha,
-        )
+            model_name=self.llm_model,
+            )
 
     def _run_index(self) -> Dict[str, Any]:
         """Run the Indexer phase."""

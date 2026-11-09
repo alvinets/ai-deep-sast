@@ -48,11 +48,13 @@ class DeepScanReporter:
     def __init__(self, finding_store: FindingStore,
                  output_dir: str = "security-reports",
                  repo_url: Optional[str] = None,
-                 commit_sha: Optional[str] = None):
+                 commit_sha: Optional[str] = None,
+                 model_name: Optional[str] = None):
         self.store = finding_store
         self.output_dir = output_dir
         self.repo_url = repo_url
         self.commit_sha = commit_sha
+        self.model_name = model_name or os.environ.get("LLM_MODEL") or "unknown"
         os.makedirs(output_dir, exist_ok=True)
 
     def generate_report(self, show_needs_review: bool = False) -> str:
@@ -68,7 +70,7 @@ class DeepScanReporter:
         report = self._build_markdown(published, needs_review, summary)
 
         report_path = os.path.join(self.output_dir, "deepscan_report.md")
-        with open(report_path, "w") as f:
+        with open(report_path, "w", encoding="utf-8") as f:
             f.write(report)
 
         logger.info("Deep scan report written to %s", report_path)
@@ -86,7 +88,7 @@ class DeepScanReporter:
         }
 
         report_path = os.path.join(self.output_dir, "deepscan_report.json")
-        with open(report_path, "w") as f:
+        with open(report_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, default=str)
 
         logger.info("Deep scan JSON report written to %s", report_path)
@@ -104,7 +106,7 @@ class DeepScanReporter:
         lines.append(f"**Generated**: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}")
         if self.commit_sha:
             lines.append(f"**Commit**: `{self.commit_sha[:12]}`")
-        lines.append(f"**Model**: Opus 4 (Anthropic)")
+        lines.append(f"**Model**: {self.model_name}")
         lines.append("")
         lines.append("---")
         lines.append("")

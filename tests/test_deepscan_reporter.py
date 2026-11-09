@@ -37,6 +37,7 @@ def reporter(store, tmp_path):
         store, output_dir=output_dir,
         repo_url="https://github.com/cisco-open/ai-deep-sast",
         commit_sha="abc123def456",
+        model_name="test-model",
     )
 
 
@@ -73,7 +74,7 @@ class TestMarkdownReport:
     def test_report_contains_findings(self, reporter, store):
         _add_published_finding(store, "sql-injection")
         path = reporter.generate_report()
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             content = f.read()
         assert "sql-injection" in content
         assert "CWE-89" in content
@@ -82,24 +83,24 @@ class TestMarkdownReport:
     def test_report_header(self, reporter, store):
         _add_published_finding(store)
         path = reporter.generate_report()
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             content = f.read()
         assert "AI Deep SAST" in content
         assert "abc123def456" in content
-        assert "Opus 4" in content
+        assert "**Model**: test-model" in content
 
     def test_report_summary_table(self, reporter, store):
         _add_published_finding(store, "sqli")
         _add_published_finding(store, "xss", "WARNING", 6.0, "CWE-79")
         path = reporter.generate_report()
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             content = f.read()
         assert "True positives (published)" in content
         assert "2" in content
 
     def test_empty_report(self, reporter, store):
         path = reporter.generate_report()
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             content = f.read()
         assert "No confirmed vulnerabilities" in content
 
@@ -108,7 +109,7 @@ class TestMarkdownReport:
         store.set_verdict(fid, Verdict.NEEDS_REVIEW)
 
         path = reporter.generate_report(show_needs_review=False)
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             content = f.read()
         assert "Needs Review" not in content
 
@@ -117,7 +118,7 @@ class TestMarkdownReport:
         store.set_verdict(fid, Verdict.NEEDS_REVIEW)
 
         path = reporter.generate_report(show_needs_review=True)
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             content = f.read()
         assert "Needs Review" in content
         assert "maybe-vuln" in content
@@ -125,7 +126,7 @@ class TestMarkdownReport:
     def test_permalink_in_report(self, reporter, store):
         _add_published_finding(store)
         path = reporter.generate_report()
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             content = f.read()
         assert "github.com/cisco-open/ai-deep-sast" in content
         assert "abc123def456" in content
@@ -134,7 +135,7 @@ class TestMarkdownReport:
         _add_published_finding(store, "sqli", "ERROR", 9.0)
         _add_published_finding(store, "xss", "WARNING", 5.0, "CWE-79")
         path = reporter.generate_report()
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             content = f.read()
         assert "Severity Breakdown" in content
 
@@ -151,7 +152,7 @@ class TestJsonReport:
     def test_json_structure(self, reporter, store):
         _add_published_finding(store, "sqli")
         path = reporter.generate_json_report()
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
         assert "generated_at" in data
         assert "summary" in data
@@ -160,7 +161,7 @@ class TestJsonReport:
 
     def test_json_empty_report(self, reporter, store):
         path = reporter.generate_json_report()
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
         assert data["findings"] == []
 
