@@ -1108,7 +1108,7 @@ def evaluate_quality_gate(report, threshold, logger):
         entry_level = severity_levels.get(
             entry_severity.upper() if isinstance(entry_severity, str) else 'WARNING', -1
         )
-        status = "❌ VIOLATION" if entry_level >= threshold_level else "✅ PASS"
+        status = "[FAIL] VIOLATION" if entry_level >= threshold_level else "[OK] PASS"
         logger.info(
             f"  {status} [{entry_severity}] (level {entry_level}) "
             f"{entry.get('rule_id', 'unknown')} in "
@@ -1122,7 +1122,7 @@ def evaluate_quality_gate(report, threshold, logger):
         )
         return 1
     else:
-        logger.info("✅ Quality gate PASSED: No findings above threshold.")
+        logger.info("Quality gate PASSED: No findings above threshold.")
         return 0
 
 
