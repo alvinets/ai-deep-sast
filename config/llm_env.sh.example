@@ -1,0 +1,32 @@
+# Example: remote LLM overrides for "Deep scan" (menu option 4) on Linux.
+#
+# Usage:
+#   1. copy this file to  config/llm_env.sh
+#   2. fill in your provider details below
+#   3. run ./start.sh - it sources the file automatically
+#
+# config/llm_env.sh is gitignored, so real keys never get committed.
+
+# OpenAI-compatible base URL. Must include the /v1 suffix.
+export LLM_BASE_URL="https://api.openai.com/v1"
+
+# Model id exactly as listed by GET <LLM_BASE_URL>/models
+export LLM_MODEL="gpt-4o"
+
+# API key. Use a dummy value such as "none" for local servers.
+export LLM_API_KEY="sk-replace-me"
+
+# ---------------------------------------------------------------------------
+# Other provider examples (uncomment one):
+#
+# Azure OpenAI : export LLM_BASE_URL="https://my-resource.openai.azure.com/openai/deployments/gpt-4o/"
+#              : export LLM_MODEL="gpt-4o"
+# Ollama       : export LLM_BASE_URL="http://127.0.0.1:11434/v1"
+#              : export LLM_MODEL="llama3.1:8b"
+#              : export LLM_API_KEY="ollama"
+# llama-server : export LLM_BASE_URL="http://127.0.0.1:8080/v1"
+#              : export LLM_MODEL="foundation-sec-8b"
+#
+# Under WSL the model cache from Windows can be reused:
+#   export HF_HOME="/mnt/d/hf-cache"
+# ---------------------------------------------------------------------------

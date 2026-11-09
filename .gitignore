@@ -55,3 +55,5 @@ FOUNDRY_DESIGN.md
 
 # Local LLM endpoint overrides (may contain API keys)
 config/llm_env.bat
+config/llm_env.sh
+.venv-linux/
