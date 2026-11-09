@@ -1,0 +1,35 @@
+@echo off
+rem ---------------------------------------------------------------------------
+rem Example: remote LLM overrides for "Deep scan" (menu option 4).
+rem
+rem Usage:
+rem   1. copy this file to  config\llm_env.bat
+rem   2. fill in your provider details below
+rem   3. start the control panel - it loads the file automatically
+rem
+rem config\llm_env.bat is gitignored, so real keys never get committed.
+rem Only LLM_BASE_URL is required to enable option 4; LLM_MODEL falls back to
+rem the deep scan default (gpt-4o) and LLM_API_KEY may be any non-empty value
+rem for local servers that do not authenticate.
+rem ---------------------------------------------------------------------------
+
+rem OpenAI-compatible base URL. Must include the /v1 suffix.
+set "LLM_BASE_URL=https://api.openai.com/v1"
+
+rem Model id exactly as listed by GET <LLM_BASE_URL>/models
+set "LLM_MODEL=gpt-4o"
+
+rem API key. Use a dummy value such as "none" for local servers.
+set "LLM_API_KEY=sk-replace-me"
+
+rem ---------------------------------------------------------------------------
+rem Other provider examples (uncomment one):
+rem
+rem Azure OpenAI : set "LLM_BASE_URL=https://my-resource.openai.azure.com/openai/deployments/gpt-4o/"
+rem              : set "LLM_MODEL=gpt-4o"
+rem Ollama       : set "LLM_BASE_URL=http://127.0.0.1:11434/v1"
+rem              : set "LLM_MODEL=llama3.1:8b"
+rem              : set "LLM_API_KEY=ollama"
+rem llama-server : set "LLM_BASE_URL=http://127.0.0.1:8080/v1"
+rem              : set "LLM_MODEL=foundation-sec-8b"
+rem ---------------------------------------------------------------------------
